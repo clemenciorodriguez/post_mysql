@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bing Maps Address Search</title>
+    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?branch=release&callback=GetMap' async defer></script>
+    <script type='text/javascript'>
+      function GetMap() {
+        const map = new Microsoft.Maps.Map('#map', {
+          credentials: 'ArFsMJZenTgrn67kKfZBw-p-7D6WEzZK3C6IsGLaS7IgQfgtj7cB4xH8ZF_34lt6'
+        });
+        document.getElementById('search').addEventListener('click', function() {
+          const address = document.getElementById('address').value;
+          const geocodeRequest = 'https://dev.virtualearth.net/REST/v1/Locations?query=' + encodeURIComponent(address) + '&key=ArFsMJZenTgrn67kKfZBw-p-7D6WEzZK3C6IsGLaS7IgQfgtj7cB4xH8ZF_34lt6';
+          fetch(geocodeRequest)
+            .then(response => response.json())
+            .then(data => {
+              if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
+                const location = data.resourceSets[0].resources[0].point.coordinates;
+                const lat = location[0]
+                const lan = location[1]
+                const ubication = {lat, lan}
+                console.log(ubication)
+                const center = new Microsoft.Maps.Location(location[0], location[1]);
+                map.setView({ center: center, zoom: 10 });
+                const pushpin = new Microsoft.Maps.Pushpin(center);
+                map.entities.push(pushpin);
+              }
+            });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <input type="text" id="address" />
+    <button id="search">Seleccionar</button>
+    <div id="map" style="width:300px; height:200px;"></div>
+  </body>
+</html>

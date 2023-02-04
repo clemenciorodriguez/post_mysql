@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type='text/javascript' src='https://www.bing.com/api/maps/mapcontrol?branch=release&callback=GetMap&key=ArFsMJZenTgrn67kKfZBw-p-7D6WEzZK3C6IsGLaS7IgQfgtj7cB4xH8ZF_34lt6' async defer></script>
+    
+    <title>Document</title>
+
+    
+
+
+    <style >
+
+
+
+
+        
+        
+
+
+
+#product-form {
+    align-items: center;
+    margin-left: 400px;
+    margin-top: 60px;
+}
+
+
+    .product-container {
+    
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .product {
+    text-align: center;
+    width: 300px;
+    margin: 20px;
+  }
+  
+  img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    margin-bottom: 25vh;
+  }
+
+  .elements {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    background-color: aliceblue;
+    
+}
+
+
+
+    </style>
+</head>
+<body>
+    <form id="product-form">
+        <div>
+          <label for="name">Nombre:</label>
+          <input type="text" id="name" name="name">
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email">
+        </div>
+        <div>
+          <label for="details">Detalles:</label>
+          <textarea id="details" name="details"></textarea>
+        </div>
+        <div>
+          <label for="Ubicacion">Ubicacion:</label>
+          <input type="text" id="address" />
+          <button id="search">Seleccionar</button>
+          <div id="map" style="width:300px; height:200px;"></div>
+        
+        </div>
+
+        <div>
+          <label for="photos">Fotos:</label>
+          <input type="file" id="photos" name="photos" multiple>
+        </div>
+
+
+        <button type="submit">Agregar producto</button>
+      </form>
+      <script>
+
+
+let lat, lon;
+const form = document.getElementById('product-form');
+function GetMap() {
+        const map = new Microsoft.Maps.Map('#map', {
+          credentials: 'ArFsMJZenTgrn67kKfZBw-p-7D6WEzZK3C6IsGLaS7IgQfgtj7cB4xH8ZF_34lt6'
+        });
+        document.getElementById('search').addEventListener('click', function(event) {
+          event.preventDefault();
+          const address = document.getElementById('address').value;
+          const geocodeRequest = 'https://dev.virtualearth.net/REST/v1/Locations?query=' + encodeURIComponent(address) + '&key=ArFsMJZenTgrn67kKfZBw-p-7D6WEzZK3C6IsGLaS7IgQfgtj7cB4xH8ZF_34lt6';
+          fetch(geocodeRequest)
+            .then(response => response.json())
+            .then(data => {
+              if (data.resourceSets.length > 0 && data.resourceSets[0].resources.length > 0) {
+                const location = data.resourceSets[0].resources[0].point.coordinates;
+                const lat = location[0]
+                const lon = location[1]
+                const formData = new FormData(form);
+                
+                const ubication = {lat, lon}
+                console.log(ubication)
+                const center = new Microsoft.Maps.Location(location[0], location[1]);
+                map.setView({ center: center, zoom: 10 });
+                const pushpin = new Microsoft.Maps.Pushpin(center);
+                map.entities.push(pushpin);
+
+
+        
+                
+                
+
+
+          form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+       
+             const formData = new FormData(form);
+             const lats = formData.append("lat", lat)
+             const lons = formData.append("lon", lon)
+     
+             
+     
+    
+  
+
+        const response = await fetch('http://localhost:3000/products', {
+        method: 'POST',
+    
+          body: formData
+                 });
+
+        const product = await response.json();
+         console.log(product);
+  
+       });
+              }
+            });
+
+
+            
+        });
+
+        
+
+      }
+
+
+
+
+      </script>
+
+
+
+
+
+
+
+      
+      <div id="products">
+        <!-- Se mostrarán los productos aquí -->
+        <script>
+const productsContainer = document.getElementById('products');
+async function getProducts() {
+  const response = await fetch('http://localhost:3000/products');
+  const products = await response.json();
+
+  productsContainer.innerHTML = '';
+  for (const product of products.products) {
+    productsContainer.innerHTML += `
+      <div class="elements">
+        <h2>${product.name}</h2>
+        <p>${product.email}</p>
+        <p> ${product.details} </p>
+        <p>${product.lat}</p>
+        <p>${product.lon}<p/>
+        <div>
+          ${product.photos.map(photo => ` <img src="${photo}" alt="Product Photo">`).join('')}
+        </div>
+      </div>
+    `;
+  }
+}
+
+getProducts();
+
+
+
+
+        </script>
+      </div>
+
+      
+           </script>
+      
+
+
+</body>
+</html>
