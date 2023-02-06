@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+
+
+    <form id="form">
+        <input type="file" name="imagen" id="imagen" multiple>
+        <button type="submit">Submit</button>
+      </form>
+      
+      <script>
+      const form = document.getElementById("form");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+      
+        const images = document.getElementById("imagen").files;
+        const formData = new FormData();
+        
+        for (let i = 0; i < images.length; i++) {
+          formData.append("imagen", images[i]);
+        }
+        
+        const response = await fetch("http://localhost:3000/subir-imagen", {
+          method: "POST",
+          body: formData
+        });
+      
+        const data = await response.json();
+        console.log(data);
+      });
+     
+      
+
+
+
+      </script>
+    
+</body>
+</html>
